@@ -21,7 +21,7 @@ npm run build
 node --test tests/localTime.test.js
 ```
 
-The static output is in `dist/`. Vercel build settings are versioned in `vercel.json`. After connecting this repository to the existing Vercel project, use `main` as the production branch: feature branch pushes create preview deployments, and merges to `main` publish production updates.
+The static output is in `dist/`. Vercel build settings are versioned in `vercel.json`. This repository is connected to the `nicole-somewhere` Vercel project with `main` as the production branch: feature branch pushes create preview deployments, and merges to `main` publish production updates.
 
 ## Content and implementation
 
@@ -165,3 +165,9 @@ Will do the following
 - https://gltf-transform.dev/cli
 - https://github.com/KhronosGroup/KTX-Software?tab=readme-ov-file
 - https://github.khronos.org/KTX-Software/ktxtools/toktx.html
+## Publishing updates
+
+1. Create a feature branch, make changes, and run `npm run build`.
+2. Push the branch and open a pull request. Check the Vercel preview deployment, including mobile layouts when relevant.
+3. Merge the reviewed pull request into `main`. Vercel automatically builds and publishes https://nicole-somewhere.vercel.app.
+4. Confirm the production deployment is Ready and check the live site. If the build fails, inspect its Vercel logs; the previous successful deployment remains available.
