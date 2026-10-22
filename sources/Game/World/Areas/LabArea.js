@@ -1318,7 +1318,8 @@ export class LabArea extends Area
         this.game.inputs.filters.add('cinematic')
 
         // View cinematic
-        this.game.view.cinematic.start(this.cinematic.position, this.cinematic.target)
+        this.game.view.cinematic.start(this.cinematic.position, this.cinematic.target,
+            ['images', 'title', 'url', 'arrowPrevious', 'arrowNext'].flatMap(name => this.references.items.get(name) || []))
 
         // Interactive point
         this.game.interactivePoints.temporaryHide()

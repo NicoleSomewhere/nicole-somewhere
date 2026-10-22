@@ -1,3 +1,4 @@
+import { fitExhibitCamera } from './utilities/exhibitFraming.js'
 import * as THREE from 'three/webgpu'
 import CameraControls from 'camera-controls'
 import { Game } from './Game.js'
@@ -428,24 +429,43 @@ export class View
         this.cinematic.target = new THREE.Vector3()
         this.cinematic.dummy = this.camera.clone()
         this.cinematic.nonIdealRatioOffset = 10
+        this.cinematic.fov = 25
 
         // this.cinematic.targetHelper = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicNodeMaterial({ color: '#ff00ff', wireframe: true }))
         // this.cinematic.targetHelper.userData.preventPreRender = true
         // this.game.scene.add(this.cinematic.targetHelper)
 
-        this.cinematic.start = (position, target) =>
+        this.cinematic.reframe = () =>
         {
-            this.cinematic.active = true
-            this.cinematic.position = position.clone()
-            this.cinematic.target = target.clone()
-
-            this.cinematic.targetHelper?.position.copy(this.cinematic.target)
-
-            if(this.ratioOverflow > 0)
+            const { basePosition, baseTarget, exhibitObjects } = this.cinematic
+            this.cinematic.position.copy(basePosition)
+            this.cinematic.target.copy(baseTarget)
+            this.cinematic.fov = 25
+            const fit = this.game.viewport.ratio < 1 && exhibitObjects
+                ? fitExhibitCamera(exhibitObjects, basePosition, baseTarget, this.game.viewport.ratio)
+                : null
+            if(fit)
             {
-                const delta = this.cinematic.position.clone().sub(this.cinematic.target).setLength(this.ratioOverflow * this.cinematic.nonIdealRatioOffset)
+                this.cinematic.position.copy(fit.position)
+                this.cinematic.target.copy(fit.target)
+                this.cinematic.fov = fit.fov
+            }
+            else if(this.ratioOverflow > 0)
+            {
+                const delta = basePosition.clone().sub(baseTarget).setLength(this.ratioOverflow * this.cinematic.nonIdealRatioOffset)
                 this.cinematic.position.add(delta)
             }
+        }
+
+        this.cinematic.start = (position, target, exhibitObjects = null) =>
+        {
+            this.cinematic.active = true
+            this.cinematic.basePosition = position.clone()
+            this.cinematic.baseTarget = target.clone()
+            this.cinematic.exhibitObjects = exhibitObjects
+            this.cinematic.reframe()
+
+            this.cinematic.targetHelper?.position.copy(this.cinematic.target)
 
             gsap.to(this.cinematic, { progress: 1, duration: 1.5, ease: 'power2.inOut', overwrite: true })
             gsap.to(this.game.rendering.cheapDOFPass.strength, { value: 0, duration: 1.5, ease: 'power2.inOut', overwrite: true })
@@ -574,6 +594,7 @@ export class View
 
         this.freeCamera.aspect = this.game.viewport.width / this.game.viewport.height
         this.freeCamera.updateProjectionMatrix()
+        if(this.cinematic.active) this.cinematic.reframe()
     }
 
     throttleResize()
@@ -731,6 +752,16 @@ export class View
             this.cinematic.dummy.lookAt(this.cinematic.target)
             this.defaultCamera.position.lerp(this.cinematic.dummy.position, this.cinematic.progress)
             this.defaultCamera.quaternion.slerp(this.cinematic.dummy.quaternion, this.cinematic.progress)
+        }
+
+        // Blend portrait exhibit projection with the normal camera on entry/exit.
+        const fov = this.mode === View.MODE_DEFAULT
+            ? lerp(25, this.cinematic.fov, this.cinematic.progress)
+            : this.freeCamera.fov
+        if(this.camera.fov !== fov)
+        {
+            this.camera.fov = fov
+            this.camera.updateProjectionMatrix()
         }
 
         // Apply to final camera
