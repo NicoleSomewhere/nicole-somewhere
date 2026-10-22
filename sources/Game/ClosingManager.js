@@ -43,10 +43,28 @@ export class ClosingManager
                     this.game.menu.open('circuit')
 
                 // Projects => Close
+                else if(this.game.world.areas?.portalProjects && (this.game.world.areas.portalProjects.state === ProjectsArea.STATE_OPEN || this.game.world.areas.portalProjects.state === ProjectsArea.STATE_OPENING))
+                    this.game.world.areas.portalProjects.close()
                 else if(this.game.world.areas?.projects && (this.game.world.areas?.projects.state === ProjectsArea.STATE_OPEN || this.game.world.areas?.projects.state === ProjectsArea.STATE_OPENING))
                     this.game.world.areas.projects.close()
 
+                // Social-area exhibit => Close.
+                else if(this.game.world.areas?.socialLab && (this.game.world.areas.socialLab.state === LabArea.STATE_OPEN || this.game.world.areas.socialLab.state === LabArea.STATE_OPENING))
+                    this.game.world.areas.socialLab.close()
+
+                // Lakeside course exhibit => Close.
+                else if(this.game.world.areas?.careerLab && (this.game.world.areas.careerLab.state === LabArea.STATE_OPEN || this.game.world.areas.careerLab.state === LabArea.STATE_OPENING))
+                    this.game.world.areas.careerLab.close()
+
+                // Copied course exhibit => Return to its scene and restore interaction.
+                else if(this.game.world.areas?.cookieLab && (this.game.world.areas.cookieLab.state === LabArea.STATE_OPEN || this.game.world.areas.cookieLab.state === LabArea.STATE_OPENING))
+                    this.game.world.areas.cookieLab.close()
+
                 // Lab => Close
+                else if(this.game.world.areas?.fountainLab && (this.game.world.areas.fountainLab.state === LabArea.STATE_OPEN || this.game.world.areas.fountainLab.state === LabArea.STATE_OPENING))
+                    this.game.world.areas.fountainLab.close()
+                else if(this.game.world.areas?.lakesideLab && (this.game.world.areas.lakesideLab.state === LabArea.STATE_OPEN || this.game.world.areas.lakesideLab.state === LabArea.STATE_OPENING))
+                    this.game.world.areas.lakesideLab.close()
                 else if(this.game.world.areas?.lab && (this.game.world.areas?.lab.state === LabArea.STATE_OPEN || this.game.world.areas?.lab.state === LabArea.STATE_OPENING))
                     this.game.world.areas.lab.close()
 

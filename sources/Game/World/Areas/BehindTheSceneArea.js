@@ -9,6 +9,25 @@ export class BehindTheSceneArea extends Area
 {
     constructor(model)
     {
+        // Keep the portal's right-hand floodlight out of the exhibit camera view.
+        // Move the complete object before Area creates its visual and rigid body.
+        const floodlight = model.children.find(child =>
+            child.name === THREE.PropertyBinding.sanitizeNodeName('lightGeneratorPhysicalDynamic.001')
+        )
+        if(floodlight)
+        {
+            floodlight.position.x += 7
+            floodlight.position.z += 4
+        }
+        // Move the cone off the Bitverse entrance rug, before creating its body.
+        const entranceCone = model.children.find(child =>
+            child.name === THREE.PropertyBinding.sanitizeNodeName('refObjectsPhysicalDynamic.022')
+        )
+        if(entranceCone)
+        {
+            entranceCone.position.x += 6.5
+            entranceCone.position.z += 1.5
+        }
         super(model)
 
         // Debug

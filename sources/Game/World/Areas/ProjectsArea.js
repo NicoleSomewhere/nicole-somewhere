@@ -3,6 +3,7 @@ import { Game } from '../../Game.js'
 import { InteractivePoints } from '../../InteractivePoints.js'
 import gsap from 'gsap'
 import projectsData from '../../../data/projects.js'
+import bitverseProjectsData from '../../../data/bitverseProjects.js'
 import { TextCanvas } from '../../TextCanvas.js'
 import { add, color, float, Fn, If, luminance, mix, mul, normalWorld, positionGeometry, sin, step, texture, uniform, uv, vec3, vec4 } from 'three/tsl'
 import { Inputs } from '../../Inputs/Inputs.js'
@@ -21,6 +22,7 @@ export class ProjectsArea extends Area
     constructor(model)
     {
         super(model)
+        this.projectsData = model.name === 'portalProjects' ? bitverseProjectsData : projectsData
 
         // Debug
         if(this.game.debug.active)
@@ -87,7 +89,9 @@ export class ProjectsArea extends Area
     {
         this.interactivePoint = this.game.interactivePoints.create(
             this.references.items.get('interactivePoint')[0].position,
-            'Projects',
+            this.model.name === 'portalProjects'
+                ? 'Bitverse｜KOL运营 2026.08–2026.05'
+                : 'AI产品运营（独立站和app运营） 2023.12-2025.07',
             InteractivePoints.ALIGN_RIGHT,
             InteractivePoints.STATE_CONCEALED,
             () =>
@@ -447,21 +451,21 @@ export class ProjectsArea extends Area
                 projectIndex -= 1
 
                 if(projectIndex < 0)
-                    projectIndex = projectsData.length - 1
+                    projectIndex = this.projectsData.length - 1
 
-                imageIndex = projectsData[projectIndex].images.length - 1
+                imageIndex = this.projectsData[projectIndex].images.length - 1
             }
             else if(imageIndex > this.navigation.current.images.length - 1)
             {
                 projectIndex += 1
 
-                if(projectIndex > projectsData.length - 1)
+                if(projectIndex > this.projectsData.length - 1)
                     projectIndex = 0
 
                 imageIndex = 0
             }
 
-            const key = projectsData[projectIndex].images[imageIndex]
+            const key = this.projectsData[projectIndex].images[imageIndex]
             const resource = this.images.getResourceAndLoad(key)
         }
 
@@ -479,12 +483,14 @@ export class ProjectsArea extends Area
                 resource = {}
                 resource.loaded = false
 
-                const loader = this.game.resourcesLoader.getLoader('textureKtx')
+                const loader = key.endsWith('.svg') ? new THREE.TextureLoader() : this.game.resourcesLoader.getLoader('textureKtx')
 
                 loader.load(
                     path,
                     (loadedTexture) =>
                     {
+                        loadedTexture.flipY = false
+                        loadedTexture.colorSpace = THREE.SRGBColorSpace
                         resource.texture = loadedTexture
                         resource.colorSpace = THREE.SRGBColorSpace
                         resource.flipY = false
@@ -1019,7 +1025,7 @@ export class ProjectsArea extends Area
 
                 gsap.to(this.url.inner.rotation, { x: Math.PI * 2 * rotationDirection, duration: 1, delay: 0, ease: 'back.out(2)', overwrite: true })
 
-                this.url.textCanvas.updateText(this.navigation.current.url.replace(/https?:\/\//, ''))
+                this.url.textCanvas.updateText(this.model.name === 'portalProjects' ? '2026.08 — 2026.05 · 查看完整经历' : '2023.12 — 2025.07 · 查看完整经历')
 
                 const ratio = this.url.textCanvas.getMeasure().width / this.texts.density
                 this.url.panel.scale.x = ratio + 0.2
@@ -1042,6 +1048,7 @@ export class ProjectsArea extends Area
         this.distinctions = {}
         this.distinctions.status = 'hidden'
         this.distinctions.group = this.references.items.get('distinctions')[0]
+        this.distinctions.group.visible = false
         this.distinctions.names = ['awwwards', 'cssda', 'fwa']
         this.distinctions.items = {}
         this.distinctions.items.awwwards = this.distinctions.group.children.find(_child => _child.name.startsWith('awwwards'))
@@ -1474,16 +1481,16 @@ export class ProjectsArea extends Area
         // Loop index
         let loopIndex = index
 
-        if(loopIndex > projectsData.length - 1)
+        if(loopIndex > this.projectsData.length - 1)
             loopIndex = 0
         else if(loopIndex < 0)
-            loopIndex = projectsData.length - 1
+            loopIndex = this.projectsData.length - 1
 
         // Save
         this.navigation.index = loopIndex
-        this.navigation.current = projectsData[this.navigation.index]
-        this.navigation.previous = projectsData[(this.navigation.index - 1) < 0 ? projectsData.length - 1 : this.navigation.index - 1]
-        this.navigation.next = projectsData[(this.navigation.index + 1) % projectsData.length]
+        this.navigation.current = this.projectsData[this.navigation.index]
+        this.navigation.previous = this.projectsData[(this.navigation.index - 1) < 0 ? this.projectsData.length - 1 : this.navigation.index - 1]
+        this.navigation.next = this.projectsData[(this.navigation.index + 1) % this.projectsData.length]
 
         // Update components
         this.attributes.update()

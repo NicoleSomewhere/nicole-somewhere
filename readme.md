@@ -1,23 +1,39 @@
-# Folio 2025
+# Nicole, Somewhere. — 3D Portfolio
 
-![image info](./static/social/share-image.png)
+Live website: https://nicole-somewhere.vercel.app
 
-## Setup
+An interactive portfolio with a drivable vehicle, career exhibition stands, and social links. Built with Three.js and Vite, based on [Bruno Simon’s folio-2025](https://github.com/brunosimon/folio-2025). The original MIT license and copyright are preserved in [license.md](license.md).
 
-Create `.env` file based on `.env.example`
+## Run locally
 
-Download and install [Node.js](https://nodejs.org/en/download/) then run this followed commands:
+Use Node.js 22 or newer.
 
-``` bash
-# Install dependencies
-npm install --force
-
-# Serve at localhost:1234
+```sh
+npm ci --force
+cp .env.example .env
 npm run dev
-
-# Build for production in the dist/ directory
-npm run build
 ```
+
+## Build and test
+
+```sh
+npm run build
+node --test tests/localTime.test.js
+```
+
+The static output is in `dist/`. For Vercel, use the Vite preset, build command `npm run build`, and output directory `dist`.
+
+## Content and implementation
+
+- Career content: `sources/data/` and `static/lab/images/`, `static/projects/images/`.
+- Full career descriptions: `static/*.html`.
+- Social profile links: `sources/data/social.js`.
+- Scene placement and interactions: `sources/Game/World/Areas/`.
+- Visitor-local day/night cycle: `sources/Game/Cycles/`.
+
+No database is required. Upstream multiplayer, leaderboard, and guestbook services are not connected. Do not commit `.env`, credentials, `node_modules/`, or `dist/`.
+
+## Upstream technical notes
 
 ## Game loop
 

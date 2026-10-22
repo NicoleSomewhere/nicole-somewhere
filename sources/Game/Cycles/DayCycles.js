@@ -1,5 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Cycles } from './Cycles.js'
+import { createLocalClock } from './localTime.js'
 
 const presets = {
     day:   { revealColor: new THREE.Color('#5f7dff'), revealIntensity: 12, electricField: 0, temperature: 5, lightColor: new THREE.Color('#ffd2c2'), lightIntensity: 1.2, shadowColor: new THREE.Color('#6d3fff'), fogColorA: new THREE.Color('#00ffff'), fogColorB: new THREE.Color('#9b89ff'), fogNearRatio: 0.315, fogFarRatio: 1.25 },
@@ -12,8 +13,14 @@ export class DayCycles extends Cycles
 {
     constructor()
     {
-        const forcedProgress = import.meta.env.VITE_DAY_CYCLE_PROGRESS ? parseFloat(import.meta.env.VITE_DAY_CYCLE_PROGRESS) : null
-        super('🕜 Day Cycles', 4 * 60, forcedProgress, false)
+        // QA override exists only in the development server, never production.
+        const preview = import.meta.env.DEV ? new URLSearchParams(location.search).get('previewHour') : null
+        const readDate = () => {
+            const date = new Date()
+            if(preview !== null && Number.isFinite(Number(preview))) date.setHours(Number(preview), 0, 0, 0)
+            return date
+        }
+        super('🕜 Day Cycles', 24 * 60 * 60, null, false, createLocalClock(readDate))
     }
 
     get presets()

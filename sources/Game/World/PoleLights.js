@@ -21,6 +21,17 @@ export class PoleLights
 
         // Base and references
         const [ base, references ] = InstancedGroup.getBaseAndReferencesFromInstances(this.game.resources.poleLightsModel.scene.children)
+        // Move the social exhibit's foreground lamp outside the reading view.
+        // Apply before instancing and physics so light, shadow and collider agree.
+        const exhibitLamp = references.find(reference =>
+            Math.abs(reference.position.x - 21.0303) < 0.1 &&
+            Math.abs(reference.position.z + 6.5487) < 0.1)
+        if(exhibitLamp)
+        {
+            exhibitLamp.position.x -= 5
+            exhibitLamp.position.z += 2
+            exhibitLamp.updateMatrix()
+        }
         this.references = references
         
         // Setup base

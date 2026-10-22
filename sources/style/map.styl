@@ -328,3 +328,194 @@
                     
                     @media only screen and (max-width 520px)
                         display initial
+
+// Nicole's personal journey: anchored to the map, not the screen.
+.map .journey-region
+    position absolute
+    left 46%
+    top 31%
+    width 52%
+    height 65%
+    border none
+    border-radius 24px
+    background rgba(255, 195, 105, 0.07)
+    box-sizing border-box
+    pointer-events none
+    z-index 1
+
+.map .journey-region-label
+    position absolute
+    right 3%
+    bottom 3%
+    padding 10px 14px
+    background rgba(37, 25, 45, 0.94)
+    border 1px solid #e9c79a
+    border-radius 10px
+    color #ffe0a1
+    font-size 16px
+    line-height 1.4
+    letter-spacing 1px
+
+.map .journey-marker
+    position absolute
+    transform translate(-50%, -50%)
+    z-index 1100
+    padding 10px 14px
+    border 2px solid #ffe1a9
+    border-radius 10px
+    background #302137
+    color #fff4df
+    font-family inherit
+    font-weight 900
+    font-size 16px
+    white-space nowrap
+    cursor pointer
+    box-shadow 0 4px 16px #24182788
+    transition background 0.2s, box-shadow 0.2s
+    &:hover, &:focus-visible
+        background #67415d
+        box-shadow 0 0 0 4px #ffe1a955
+        outline none
+    &::after
+        content ''
+        position absolute
+        left calc(50% - 6px)
+        bottom -8px
+        width 12px
+        height 12px
+        background #302137
+        border-right 2px solid #ffe1a9
+        border-bottom 2px solid #ffe1a9
+        transform rotate(45deg)
+
+.map .journey-start
+    background #fff0cf
+    color #35213c
+    &::after
+        background #fff0cf
+
+.map .journey-marker small, .map .journey-region-label small
+    display block
+    font-size 12px
+    font-weight 400
+    letter-spacing 0
+    margin-top 3px
+
+.map .journey-region-label
+    right 2%
+    bottom 5%
+    max-width 65%
+    font-size 14px
+    text-align left
+
+.map .journey-zone
+    position absolute
+    border none
+    border-radius 35%
+    background transparent
+    box-shadow none
+    box-sizing border-box
+    pointer-events none
+    z-index 2
+
+.map .journey-zone-caption
+    position absolute
+    left 50%
+    top 48%
+    transform translate(-50%, -50%)
+    padding 7px 10px
+    border 1px solid var(--zone-color)
+    border-radius 8px
+    background rgba(37, 25, 45, 0.94)
+    color var(--zone-color)
+    white-space nowrap
+    text-align center
+    font-size 16px
+    line-height 1.5
+    small
+        display block
+        font-size 11px
+        color #f4e9df
+    @media only screen and (max-width 800px)
+        font-size 12px
+        padding 5px 6px
+        small
+            font-size 9px
+
+// Keep navigation targets above decorative annotations and transparent to input.
+.map .location
+    z-index 1200 !important
+.map .journey-zone-caption, .map .journey-region-label
+    pointer-events none
+
+.map .journey-route
+    position absolute
+    inset 0
+    width 100%
+    height 100%
+    z-index 2
+    pointer-events none
+    overflow visible
+    path
+        fill none
+        stroke #ff4d5f
+        stroke-width 0.42
+        stroke-dasharray 1.3 1.1
+        stroke-linecap round
+        stroke-linejoin round
+
+// A small enamel landmark plaque, matching the map's gold and plum palette.
+.map .journey-region-label
+    padding 12px 14px
+    background linear-gradient(145deg, #423047, #25192d 75%)
+    border none
+    box-shadow 0 7px 16px #00000066
+    border-radius 12px
+    letter-spacing 0.8px
+    .journey-brand
+        display flex
+        align-items center
+        gap 12px
+    .journey-brand-logo
+        display flex
+        align-items center
+        justify-content center
+        flex-shrink 0
+        width 76px
+        height 64px
+        border 1px solid #e9c79a88
+        border-radius 12px
+        background linear-gradient(145deg, #946a77, #51394e)
+        box-shadow inset 0 1px 0 #ffebc94d, 0 3px 0 #211729
+        img
+            display block
+            width 62px
+            height auto
+    .journey-brand-heading
+        font-size 13px
+        white-space nowrap
+        small
+            margin-top 6px
+            color #f5e5cb
+    .journey-brand-company
+        border-top 1px solid #e9c79a40
+        padding-top 8px
+        margin-top 10px
+        font-size 11px
+        letter-spacing 0
+    @media only screen and (max-width 800px)
+        padding 8px
+        max-width 84%
+        .journey-brand
+            gap 8px
+        .journey-brand-logo
+            width 48px
+            height 44px
+            img
+                width 40px
+        .journey-brand-heading
+            font-size 10px
+            small
+                font-size 10px
+        .journey-brand-company
+            font-size 9px

@@ -13,8 +13,8 @@ export default {
     server:
     {
         // https: true,
-        host: true, // Open to local network and display URL
-        open: true // Open in browser
+        host: '127.0.0.1', // Open to local network and display URL
+        open: false // Open in browser
     },
     build:
     {

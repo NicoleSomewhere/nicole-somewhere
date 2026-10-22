@@ -7,3 +7,7 @@ dist
 .autosave
 .wav
 !static/sounds/music/*.wav
+
+# Local build logs and authoring scratch files
+/work/
+*.log

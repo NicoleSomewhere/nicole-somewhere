@@ -83,7 +83,15 @@ export class CareerArea extends Area
             line.size = parseFloat(line.group.userData.size)
             line.hasEnd = line.group.userData.hasEnd
             line.color = line.group.userData.color
-            line.texture = this.game.resources[`${line.group.userData.texture}Texture`]
+            const labels = {
+                careerHetic: '业务运营 / 数据运营',
+                careerUzik: '媒介策略',
+                careerImmersiveGarden: '课程交付',
+                careerOnlineTeacher: '业务中心',
+                careerFreelancer: '业务运营 / 数据运营',
+                careerIRLTeacher: '课程交付'
+            }
+            line.texture = this.createCareerTexture(labels[line.group.userData.texture] || '业务中心', '2021.01 〜 2023.03')
 
             line.stone = line.group.children.find(child => child.name.startsWith('stone'))
             line.stone.position.y = 0
@@ -148,6 +156,25 @@ export class CareerArea extends Area
         }
     }
 
+    createCareerTexture(title, subtitle, board = false)
+    {
+        const canvas = document.createElement('canvas')
+        canvas.width = 1536
+        canvas.height = 512
+        const ctx = canvas.getContext('2d')
+        ctx.fillStyle = board ? '#302438' : '#000000'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillStyle = '#ffffff'
+        ctx.font = 'bold 94px "PingFang SC", "Microsoft YaHei", sans-serif'
+        ctx.fillText(title, 768, 185, 1420)
+        ctx.font = '64px "PingFang SC", "Microsoft YaHei", sans-serif'
+        ctx.fillText(subtitle, 768, 338, 1420)
+        const result = new THREE.CanvasTexture(canvas)
+        return result
+    }
+
     setYears()
     {
         this.year = {}
@@ -155,106 +182,11 @@ export class CareerArea extends Area
         this.year.originZ = this.year.group.position.z
         this.year.size = 17
         this.year.offsetTarget = 0
-        this.year.start = 2008
-        this.year.current = this.year.start
-
-        //    Digit indexes
-        //
-        //      --- 0 ---
-        //    |           |
-        //    5           1
-        //    |           |
-        //      --- 6 --- 
-        //    |           |
-        //    4           2
-        //    |           |
-        //      --- 3 ---
-
-        const a = 255
-
-        const digitData = new Uint8Array([
-            a, a, a, a, a, a, 0, // 0
-            0, a, a, 0, 0, 0, 0, // 1
-            a, a, 0, a, a, 0, a, // 2
-            a, a, a, a, 0, 0, a, // 3
-            0, a, a, 0, 0, a, a, // 4
-            a, 0, a, a, 0, a, a, // 5
-            a, 0, a, a, a, a, a, // 6
-            a, a, a, 0, 0, 0, 0, // 7
-            a, a, a, a, a, a, a, // 8
-            a, a, a, a, 0, a, a, // 9
-        ])
-
-        this.year.digitsTexture = new THREE.DataTexture(
-            digitData,
-            7,
-            10,
-            THREE.RedFormat,
-            THREE.UnsignedByteType,
-            THREE.UVMapping,
-            THREE.ClampToEdgeWrapping,
-            THREE.ClampToEdgeWrapping,
-            THREE.NearestFilter,
-            THREE.NearestFilter
-        )
-        this.year.digitsTexture.generateMipmaps = false
-        this.year.digitsTexture.needsUpdate = true
-
-        this.year.digits = []
-
-        const digitMeshes = this.year.group.children.filter(child => child.name.startsWith('digit'))
-
-        for(const mesh of digitMeshes)
-        {
-            const digit = {}
-            digit.mesh = mesh
-            digit.indexUniform = uniform(0)
-            
-            const material = new THREE.MeshBasicNodeMaterial()
-            material.outputNode = vec4(1.7)
-
-            material.positionNode = Fn(() =>
-            {
-                const barUv = uv(1).toVar()
-
-                const uvY = digit.indexUniform.div(10).add(float(0.5).div(10))
-                barUv.y.assign(uvY)
-
-                const barActive = texture(this.year.digitsTexture, barUv).r
-
-                const newPosition = positionGeometry.toVar()
-                newPosition.y.subAssign(barActive.oneMinus())
-
-                return newPosition
-            })()
-
-            digit.mesh.material = material
-
-            this.year.digits.push(digit)
-        }
-
-        this.year.updateDigits = (year = 2025) =>
-        {
-            const yearString = `${year}`
-            let i = 0
-            for(const digit of this.year.digits)
-            {
-                digit.indexUniform.value = parseInt(yearString[i])
-                i++
-            }
-        }
-
-        this.year.updateDigits(this.year.current)
-
-        // // Test mesh
-        // const mesh = new THREE.Mesh(
-        //     new THREE.PlaneGeometry(2, 2),
-        //     new THREE.MeshBasicMaterial({ map: this.year.digitsTexture, side: THREE.DoubleSide })
-        // )
-        // mesh.position.y = 4
-        // mesh.position.z = -30
-        // mesh.position.x = -10
-        // this.game.scene.add(mesh)
+        this.year.start = 2021
+        this.year.current = 2021
+        for(const child of this.year.group.children) child.visible = false
+        // A fixed, upright roadside gateway rather than a sliding floor label.
+        this.year.updateDigits = () => {}
     }
 
     setAchievement()
@@ -362,7 +294,7 @@ export class CareerArea extends Area
         else
             this.year.offsetTarget = delta
 
-        const finalPositionZ = this.year.originZ - this.year.offsetTarget
+        const finalPositionZ = this.year.originZ
         this.year.group.position.z += (finalPositionZ - this.year.group.position.z) * this.game.ticker.deltaScaled * 10
 
         const yearCurrent = this.year.start + Math.floor(this.year.offsetTarget)

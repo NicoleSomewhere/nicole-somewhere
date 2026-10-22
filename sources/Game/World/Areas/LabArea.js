@@ -2,7 +2,12 @@ import * as THREE from 'three/webgpu'
 import { Game } from '../../Game.js'
 import { InteractivePoints } from '../../InteractivePoints.js'
 import gsap from 'gsap'
-import labData from '../../../data/lab.js'
+import productLabData from '../../../data/productLab.js'
+import yamaswapLabData from '../../../data/yamaswapLab.js'
+import blueXLabData from '../../../data/blueXLab.js'
+import courseLabData from '../../../data/courseLab.js'
+import marketingLabData from '../../../data/marketingLab.js'
+import socialContentLabData from '../../../data/socialContentLab.js'
 import { TextCanvas } from '../../TextCanvas.js'
 import { add, color, float, Fn, If, luminance, mix, mul, normalWorld, positionGeometry, positionWorld, sin, step, texture, uniform, uv, vec2, vec3, vec4 } from 'three/tsl'
 import { remapClamp, safeMod, signedModDelta } from '../../utilities/maths.js'
@@ -22,6 +27,7 @@ export class LabArea extends Area
     constructor(model)
     {
         super(model)
+        this.labData = model.name === 'fountainLab' ? blueXLabData : model.name === 'lakesideLab' ? yamaswapLabData : model.name === 'socialLab' ? socialContentLabData : model.name === 'careerLab' ? marketingLabData : ['cookieLab', 'socialLab'].includes(model.name) ? courseLabData : productLabData
 
         // Debug
         if(this.game.debug.active)
@@ -90,7 +96,7 @@ export class LabArea extends Area
     {
         this.interactivePoint = this.game.interactivePoints.create(
             this.references.items.get('interactivePoint')[0].position,
-            'Lab',
+            this.model.name === 'fountainLab' ? 'Blue X｜用户运营 2026.10–2026.12' : this.model.name === 'lakesideLab' ? 'YamaSwap｜内容运营 2026.08–2026.09' : this.model.name === 'socialLab' ? 'AI内容营销 2026.01—2026.03' : this.model.name === 'careerLab' ? '内容营销 2025.08—2025.12' : this.model.name === 'cookieLab' ? 'AI课程交付 2022.11-2023.03' : '产品运营 （AI课程配套工具） 2023.04-2023.11',
             InteractivePoints.ALIGN_RIGHT,
             InteractivePoints.STATE_CONCEALED,
             () =>
@@ -184,6 +190,21 @@ export class LabArea extends Area
         this.cinematic.target = new THREE.Vector3()
         this.cinematic.targetOffset = new THREE.Vector3(-1.75, 1.9, -3)
 
+        if(this.model.name === 'fountainLab')
+        {
+            // Keep the viewing direction and widen the Blue X exhibit framing.
+            this.cinematic.positionOffset.sub(this.cinematic.targetOffset)
+                .multiplyScalar(1.35)
+                .add(this.cinematic.targetOffset)
+        }
+
+        if(this.model.userData.exhibitYaw)
+        {
+            const axis = new THREE.Vector3(0, 1, 0)
+            this.cinematic.positionOffset.applyAxisAngle(axis, this.model.userData.exhibitYaw)
+            this.cinematic.targetOffset.applyAxisAngle(axis, this.model.userData.exhibitYaw)
+        }
+
         const applyPositionAndTarget = () =>
         {
             const flatPosition = this.references.items.get('interactivePoint')[0].position.clone()
@@ -257,7 +278,7 @@ export class LabArea extends Area
         this.texts = {}
         
         this.texts.density = 200
-        this.texts.fontFamily = 'Amatic SC'
+        this.texts.fontFamily = 'sans-serif'
         this.texts.fontWeight = 700
         this.texts.fontSizeMultiplier = 1
         this.texts.baseColor = color('#ffffff')
@@ -442,12 +463,12 @@ export class LabArea extends Area
                 projectIndex += 1
 
             if(projectIndex < 0)
-                projectIndex = labData.length - 1
+                projectIndex = this.labData.length - 1
 
-            if(projectIndex > labData.length - 1)
+            if(projectIndex > this.labData.length - 1)
                 projectIndex = 0
 
-            const key = labData[projectIndex].image
+            const key = this.labData[projectIndex].image
             const resource = this.images.getResourceAndLoad(key)
         }
 
@@ -465,12 +486,14 @@ export class LabArea extends Area
                 resource = {}
                 resource.loaded = false
 
-                const loader = this.game.resourcesLoader.getLoader('textureKtx')
+                const loader = new THREE.TextureLoader()
 
                 loader.load(
                     path,
                     (loadedTexture) =>
                     {
+                        loadedTexture.flipY = false
+                        loadedTexture.colorSpace = THREE.SRGBColorSpace
                         resource.texture = loadedTexture
                         resource.colorSpace = THREE.SRGBColorSpace
                         resource.flipY = false
@@ -721,7 +744,7 @@ export class LabArea extends Area
 
                 gsap.to(this.url.inner.rotation, { x: Math.PI * 2 * rotationDirection, duration: 1, delay: 0, ease: 'back.out(2)', overwrite: true })
 
-                this.url.textCanvas.updateText(this.navigation.current.url.replace(/https?:\/\//, ''))
+                this.url.textCanvas.updateText(this.model.name === 'fountainLab' ? '2026.10–2026.12 · 查看完整经历' : this.model.name === 'lakesideLab' ? '2026.08–2026.09 · 查看完整经历' : this.model.name === 'socialLab' ? '2026.01—2026.03 · 查看完整经历' : this.model.name === 'careerLab' ? '2025.08—2025.12 · 查看完整经历' : ['cookieLab', 'socialLab'].includes(this.model.name) ? '2022.11–2023.03 · 查看完整经历' : '2023.04–2023.11 · 查看完整经历')
 
                 const ratio = this.url.textCanvas.getMeasure().width / this.texts.density
                 this.url.panel.scale.x = ratio + 0.2
@@ -790,13 +813,13 @@ export class LabArea extends Area
             this.scroller.minis = {}
             this.scroller.minis.inter = 0.9
             this.scroller.minis.items = []
-            this.scroller.minis.total = labData.length * this.scroller.minis.inter
+            this.scroller.minis.total = this.labData.length * this.scroller.minis.inter
             this.scroller.minis.current = null
             this.scroller.minis.width = 1920 / 8
             this.scroller.minis.height = 1080 / 8
 
             let i = 0
-            for(const project of labData)
+            for(const project of this.labData)
             {
                 const mini = {}
                 mini.index = i
@@ -838,7 +861,7 @@ export class LabArea extends Area
                         if(mini.startedLoading)
                             return
 
-                        const loader = this.game.resourcesLoader.getLoader('textureKtx')
+                        const loader = new THREE.TextureLoader()
 
                         loader.load(
                             `lab/images/${project.imageMini}`,
@@ -1002,8 +1025,8 @@ export class LabArea extends Area
         this.scroller.update = () =>
         {
             // Scroll
-            const centeringOffset = labData.length - 3.25
-            const closestProgress = Math.round((this.scroller.progress + this.navigation.index - centeringOffset) / labData.length) * labData.length - this.navigation.index + centeringOffset
+            const centeringOffset = this.labData.length - 3.25
+            const closestProgress = Math.round((this.scroller.progress + this.navigation.index - centeringOffset) / this.labData.length) * this.labData.length - this.navigation.index + centeringOffset
             this.scroller.targetProgress = closestProgress
 
             // Active text
@@ -1408,10 +1431,10 @@ export class LabArea extends Area
         // Loop index
         let loopIndex = index
 
-        if(loopIndex > labData.length - 1)
+        if(loopIndex > this.labData.length - 1)
             loopIndex = 0
         else if(loopIndex < 0)
-            loopIndex = labData.length - 1
+            loopIndex = this.labData.length - 1
 
         // Already active
         if(this.navigation.index === loopIndex)
@@ -1419,13 +1442,13 @@ export class LabArea extends Area
 
         // Direction
         if(direction === null)
-            direction = signedModDelta(loopIndex, this.navigation.index, labData.length) > 0 ? LabArea.DIRECTION_PREVIOUS : LabArea.DIRECTION_NEXT
+            direction = signedModDelta(loopIndex, this.navigation.index, this.labData.length) > 0 ? LabArea.DIRECTION_PREVIOUS : LabArea.DIRECTION_NEXT
 
         // Save
         this.navigation.index = loopIndex
-        this.navigation.current = labData[this.navigation.index]
-        this.navigation.previous = labData[(this.navigation.index - 1) < 0 ? labData.length - 1 : this.navigation.index - 1]
-        this.navigation.next = labData[(this.navigation.index + 1) % labData.length]
+        this.navigation.current = this.labData[this.navigation.index]
+        this.navigation.previous = this.labData[(this.navigation.index - 1) < 0 ? this.labData.length - 1 : this.navigation.index - 1]
+        this.navigation.next = this.labData[(this.navigation.index + 1) % this.labData.length]
         this.navigation.direction = direction
 
         // Update components

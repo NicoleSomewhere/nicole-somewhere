@@ -5,11 +5,19 @@ import socialData from '../../../data/social.js'
 import { InstancedGroup } from '../../InstancedGroup.js'
 import { Area } from './Area.js'
 import { View } from '../../View.js'
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 
 export class SocialArea extends Area
 {
     constructor(model)
     {
+        // Replace the logo before Area builds its visuals and physics.
+        model.traverse(child =>
+        {
+            if(child.isMesh && child.name === 'twitchPhysicalDynamic')
+                child.geometry = createInstagramGeometry()
+        })
+        addFacebookStand(model)
         super(model)
 
         this.center = this.references.items.get('center')[0].position
@@ -38,7 +46,7 @@ export class SocialArea extends Area
 
         for(const link of socialData)
         {
-            const angle = i * Math.PI / (socialData.length - 1)
+            const angle = link.name === 'FACEBOOK' ? -Math.PI / 7 : i * Math.PI / 7
             const position = this.center.clone()
             position.x += Math.cos(angle) * radius
             position.y = 1
@@ -53,7 +61,7 @@ export class SocialArea extends Area
                 {
                     if(link.url)
                         window.open(link.url, '_blank')
-                    else(link.modal)
+                    else if(link.modal)
                         this.game.modals.open(link.modal)
                 },
                 () =>
@@ -315,4 +323,120 @@ export class SocialArea extends Area
                 object.visual.object3D.needsUpdate = true
         }
     }
+}
+// A solid, bevelled camera outline using the original logo's palette swatch.
+// Keep its size, origin and depth so the existing plinth and collider still fit.
+function createInstagramGeometry()
+{
+    const roundedSquare = (size, radius, PathType) =>
+    {
+        const path = new PathType()
+        const h = size / 2
+        path.moveTo(-h + radius, -h)
+        path.lineTo(h - radius, -h)
+        path.quadraticCurveTo(h, -h, h, -h + radius)
+        path.lineTo(h, h - radius)
+        path.quadraticCurveTo(h, h, h - radius, h)
+        path.lineTo(-h + radius, h)
+        path.quadraticCurveTo(-h, h, -h, h - radius)
+        path.lineTo(-h, -h + radius)
+        path.quadraticCurveTo(-h, -h, -h + radius, -h)
+        return path
+    }
+    const frame = roundedSquare(1.48, 0.35, THREE.Shape)
+    frame.holes.push(roundedSquare(1.12, 0.22, THREE.Path))
+    const lens = new THREE.Shape()
+    lens.absarc(0, 0, 0.36, 0, Math.PI * 2, false)
+    const aperture = new THREE.Path()
+    aperture.absarc(0, 0, 0.21, 0, Math.PI * 2, true)
+    lens.holes.push(aperture)
+    const flash = new THREE.Shape()
+    flash.absarc(0.39, 0.39, 0.085, 0, Math.PI * 2, false)
+    const pieces = [frame, lens, flash].map(shape => new THREE.ExtrudeGeometry(shape, {
+        depth: 0.15, steps: 1, curveSegments: 8,
+        bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 1,
+    }))
+    const geometry = mergeGeometries(pieces)
+    pieces.forEach(piece => piece.dispose())
+    geometry.translate(0, -0.1, -0.04)
+    const uv = geometry.getAttribute('uv')
+    for(let i = 0; i < uv.count; i++)
+        uv.setXY(i, 0.42096996307373047, 0.5)
+    return geometry
+}
+
+function addFacebookStand(model)
+{
+    const source = model.children.find(child => child.name === THREE.PropertyBinding.sanitizeNodeName('Cube.133'))
+    const originalLogo = model.children.find(child => child.name === 'xPhysicalDynamic')
+    const center = model.children.find(child => child.name === 'refCenter')
+    if(!source || !originalLogo || !center) return
+    const angle = Math.PI / 7
+    const location = new THREE.Vector3(
+        center.position.x + Math.cos(angle) * 7.85,
+        source.position.y,
+        center.position.z + Math.sin(angle) * 7.85
+    )
+    // Copy the existing X plinth's triangles from the combined platform mesh.
+    const original = source.geometry.index ? source.geometry.toNonIndexed() : source.geometry.clone()
+    const positions = original.getAttribute('position')
+    const selected = []
+    for(let i = 0; i < positions.count; i += 3)
+    {
+        if([i, i + 1, i + 2].every(j => positions.getX(j) > 6 && Math.abs(positions.getZ(j)) < 2))
+            selected.push(i, i + 1, i + 2)
+    }
+    const platformGeometry = new THREE.BufferGeometry()
+    for(const [name, attribute] of Object.entries(original.attributes))
+    {
+        const values = []
+        for(const index of selected)
+            for(let component = 0; component < attribute.itemSize; component++)
+                values.push(attribute.array[index * attribute.itemSize + component])
+        platformGeometry.setAttribute(name, new THREE.Float32BufferAttribute(values, attribute.itemSize))
+    }
+    original.dispose()
+    platformGeometry.translate(-7.8485, 0, 0)
+    const platform = new THREE.Mesh(platformGeometry, source.material)
+    platform.name = 'facebookPlatformPhysicalFixed'
+    platform.position.copy(location)
+    platform.rotation.y = -angle
+    const platformCollider = new THREE.Object3D()
+    platformCollider.name = 'cuboid'
+    platformCollider.position.y = 0.2
+    platformCollider.scale.set(1.65, 0.4, 2.8)
+    platform.add(platformCollider)
+    model.add(platform)
+
+    const shape = new THREE.Shape()
+    shape.moveTo(-0.17, -0.86)
+    shape.lineTo(0.17, -0.86)
+    shape.lineTo(0.17, -0.05)
+    shape.lineTo(0.46, -0.05)
+    shape.lineTo(0.51, 0.28)
+    shape.lineTo(0.17, 0.28)
+    shape.lineTo(0.17, 0.51)
+    shape.quadraticCurveTo(0.17, 0.64, 0.32, 0.64)
+    shape.lineTo(0.52, 0.64)
+    shape.lineTo(0.52, 0.94)
+    shape.lineTo(0.25, 0.94)
+    shape.quadraticCurveTo(-0.17, 0.94, -0.17, 0.54)
+    shape.lineTo(-0.17, 0.28)
+    shape.lineTo(-0.43, 0.28)
+    shape.lineTo(-0.43, -0.05)
+    shape.lineTo(-0.17, -0.05)
+    shape.closePath()
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+        depth: 0.18, steps: 1, curveSegments: 6,
+        bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.025, bevelSegments: 1,
+    })
+    const uv = geometry.getAttribute('uv')
+    for(let i = 0; i < uv.count; i++) uv.setXY(i, 0.42096996307373047, 0.5)
+    const logo = originalLogo.clone(true)
+    logo.name = 'facebookPhysicalDynamic'
+    logo.geometry = geometry
+    logo.position.copy(location)
+    logo.position.y += 1.45
+    logo.rotation.set(0, -angle, 0)
+    model.add(logo)
 }
