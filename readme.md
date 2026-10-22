@@ -21,7 +21,7 @@ npm run build
 node --test tests/localTime.test.js
 ```
 
-The static output is in `dist/`. For Vercel, use the Vite preset, build command `npm run build`, and output directory `dist`.
+The static output is in `dist/`. Vercel build settings are versioned in `vercel.json`. After connecting this repository to the existing Vercel project, use `main` as the production branch: feature branch pushes create preview deployments, and merges to `main` publish production updates.
 
 ## Content and implementation
 
