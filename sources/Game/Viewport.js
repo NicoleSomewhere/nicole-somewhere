@@ -21,7 +21,10 @@ export class Viewport
         this.ratio = this.width / this.height
 
         this.pixelRatioPure = window.devicePixelRatio
-        this.pixelRatioMax = 2
+        // Limit the mobile framebuffer without reducing DOM text resolution.
+        const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+            || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(navigator.userAgent))
+        this.pixelRatioMax = isMobile ? 1.25 : 2
         this.pixelRatio = Math.min(this.pixelRatioPure, this.pixelRatioMax)
     }
 

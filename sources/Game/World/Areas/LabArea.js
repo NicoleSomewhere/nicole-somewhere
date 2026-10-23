@@ -190,6 +190,15 @@ export class LabArea extends Area
         this.cinematic.target = new THREE.Vector3()
         this.cinematic.targetOffset = new THREE.Vector3(-1.75, 1.9, -3)
 
+        if(this.model.name === 'cookieLab')
+        {
+            // Leave room for the instruction board on the left of the course exhibit.
+            const viewingOffset = this.cinematic.positionOffset.clone()
+                .sub(this.cinematic.targetOffset).multiplyScalar(1.3)
+            this.cinematic.targetOffset.x -= 0.65
+            this.cinematic.positionOffset.copy(this.cinematic.targetOffset).add(viewingOffset)
+        }
+
         if(this.model.name === 'fountainLab')
         {
             // Keep the viewing direction and widen the Blue X exhibit framing.
@@ -1319,7 +1328,9 @@ export class LabArea extends Area
 
         // View cinematic
         this.game.view.cinematic.start(this.cinematic.position, this.cinematic.target,
-            ['images', 'title', 'url', 'arrowPrevious', 'arrowNext'].flatMap(name => this.references.items.get(name) || []))
+            ['images', 'title', 'url', 'arrowPrevious', 'arrowNext',
+                ...(this.model.name === 'cookieLab' ? ['blackBoard'] : [])
+            ].flatMap(name => this.references.items.get(name) || []))
 
         // Interactive point
         this.game.interactivePoints.temporaryHide()
