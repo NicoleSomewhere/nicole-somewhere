@@ -84,7 +84,7 @@ export class Map
 
         const zones = [
             { name: '交付中心', date: '2025.08 〜 至今', labelX: 0.02, labelY: 0.50, fixedLabel: true, x: 55, y: 35, w: 20, h: 20, color: '#a7e7ec' },
-            { name: '兼职中心', date: '2026.08 〜 2026.12', x: 75, y: 35, w: 22, h: 27, color: '#dbb6f4' },
+            { name: '兼职项目', date: '2026.08 〜 2026.12', x: 75, y: 35, w: 22, h: 27, color: '#dbb6f4' },
             { name: '产研中心', date: '2023.04 〜 2025.07', labelX: 0.4091, labelY: 0.04, fixedLabel: true, x: 47, y: 55, w: 22, h: 19, color: '#bfe3a4' },
             { name: '业务中心', date: '2021.01 〜 2023.03', labelX: 0.62, labelY: -0.32, x: 47, y: 77, w: 16, h: 15, color: '#ffe1a9' },
         ]
