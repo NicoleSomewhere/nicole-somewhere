@@ -84,7 +84,7 @@ export class Map
 
         const zones = [
             { name: '交付中心', date: '2025.08 〜 至今', labelX: 0.02, labelY: 0.50, fixedLabel: true, x: 55, y: 35, w: 20, h: 20, color: '#a7e7ec' },
-            { name: '兼职中心', date: '2026.08 〜 2026.12', x: 75, y: 35, w: 22, h: 27, color: '#dbb6f4' },
+            { name: '兼职项目', date: '2026.08 〜 2026.12', x: 75, y: 35, w: 22, h: 27, color: '#dbb6f4' },
             { name: '产研中心', date: '2023.04 〜 2025.07', labelX: 0.4091, labelY: 0.04, fixedLabel: true, x: 47, y: 55, w: 22, h: 19, color: '#bfe3a4' },
             { name: '业务中心', date: '2021.01 〜 2023.03', labelX: 0.62, labelY: -0.32, x: 47, y: 77, w: 16, h: 15, color: '#ffe1a9' },
         ]
@@ -179,7 +179,7 @@ export class Map
             { name: 'LANDING（初始区域）', respawnName: 'landing', offset: { x: 0.02, y: 0 } },
             { name: 'AI产品运营<span style="display:block;font-size:0.8em">（独立站和app运营）</span><span style="display:block;font-size:0.8em">2023.12–2025.07</span>', respawnName: 'projects', offset: { x: 0, y: -0.02 } },
             { name: 'AI内容营销<span style="display:block;font-size:0.8em">2026.01—2026.03</span>', respawnName: 'social', offset: { x: -0.01, y: -0.04 } },
-            { name: 'TIME MACHINE（时光机）', respawnName: 'timeMachine', offset: { x: 0, y: 0 } },
+            { name: 'TRAVEL SOMEWHERE', respawnName: 'timeMachine', offset: { x: 0, y: 0 } },
         ]
 
         for(const item of this.locations.items)
