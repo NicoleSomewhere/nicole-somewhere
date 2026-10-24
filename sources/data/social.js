@@ -6,6 +6,6 @@ export default [
     { name: 'INSTAGRAM', url: 'https://www.instagram.com/nicole_somewhere?xtok=amt1cHF5ZzRjb2N3&utm_source=qr', align: 'right' },
     { name: 'GitHub', url: 'https://github.com/NicoleSomewhere', align: 'right' },
     { name: 'LinkedIn', url: 'https://www.linkedin.com/in/nicole-somewhere-b11011446', align: 'left' },
-    { name: 'Discord', modal: 'discord', align: 'left' },
+    { name: 'Discord', url: 'https://discord.gg/mwwf5TBQ', align: 'left' },
     { name: 'FACEBOOK', url: 'https://www.facebook.com/share/14qnrUyrcEn/?mibextid=wwXIfr', align: 'right' },
 ]

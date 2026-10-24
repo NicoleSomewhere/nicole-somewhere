@@ -179,7 +179,7 @@ export class Map
             { name: 'LANDING（初始区域）', respawnName: 'landing', offset: { x: 0.02, y: 0 } },
             { name: 'AI产品运营<span style="display:block;font-size:0.8em">（独立站和app运营）</span><span style="display:block;font-size:0.8em">2023.12–2025.07</span>', respawnName: 'projects', offset: { x: 0, y: -0.02 } },
             { name: 'AI内容营销<span style="display:block;font-size:0.8em">2026.01—2026.03</span>', respawnName: 'social', offset: { x: -0.01, y: -0.04 } },
-            { name: 'TIME MACHINE（时光机）', respawnName: 'timeMachine', offset: { x: 0, y: 0 } },
+            { name: 'TRAVEL SOMEWHERE', respawnName: 'timeMachine', offset: { x: 0, y: 0 } },
         ]
 
         for(const item of this.locations.items)
